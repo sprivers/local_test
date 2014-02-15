@@ -1,5 +1,6 @@
 var http  = require('http');
 var url   = require('url');
+var qs    = require('querystring');
 var items = [];
 
 
@@ -29,8 +30,8 @@ var server = http.createServer(function(req, res){
 
 });
 
-server.listen(3000, function() {
-  console.log("Server listening on port 3000.");
+server.listen(3003, function() {
+  console.log("Server listening on port 3003.");
 });
 
 function show(res) {
@@ -46,21 +47,32 @@ function show(res) {
 			 + '<p><input type="text" name="item" /></p>'
 			 + '<p><input type="submit" value="Add Item" /></p>'
 			 + '</form></body></html>';
-			 
+
 	res.setHeader('Content-Type', 'text/html');
 	res.setHeader('Content-Length', Buffer.byteLength(html));
 	res.end(html);
 }
 
 function addNew(req, res) {
-
+	var body = '';
+	req.setEncoding('utf8');
+	req.on('data', function(chunk) { body += chunk });
+	req.on('end', function() {
+		var obj = qs.parse(body);
+		items.push(obj.item);
+		show(res);
+	});
 }
 
 function badRequest(res) {
-
+	res.statusCode = 400;
+	res.setHeader('Content-Type', 'text/plain');
+	res.end('Bad request');
 }
 
 function notFound(res) {
-
+	res.statusCode = 404;
+	res.setHeader('Content-Type', 'text/plain');
+	res.end('Not found');
 }
 
