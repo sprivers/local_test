@@ -16,12 +16,31 @@ var server = http.createServer(function(req, res) {
 
 	switch (req.method) {
 
-		case 'GET' :
-		switch (req.url) {
-			case '/':
-				show(res);
+		case 'POST' :
+			switch(req.url) {
+				case '/' :
+					work.add(db, req, res);
+					break;
 
-		}
+				case '/archive' :
+					work.archive(db, req, res);
+					break;
+
+				case '/remove' :
+					work.remove(db, req, res);
+					break;	
+			}
+
+		case 'GET' :
+			switch (req.url) {
+				case '/' :
+					work.show(db, res);
+					break;
+
+				case '/archived' :	
+					work.showArchived(db, res);
+					break;
+			}
 	}
 
 });
@@ -36,7 +55,7 @@ db.query(
 	+ "PRIMARY KEY(id))", 
 	function(err) {
 		if (err) throw err;
-		console.log('Server started...');
+		console.log('Server starting on port 3000');
 		server.listen(3000, '127.0.0.1');
 	}
 );
