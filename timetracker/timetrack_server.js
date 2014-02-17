@@ -12,6 +12,20 @@ var db = mysql.createConnection({
 	database: 	'timetrack'
 });
 
+var server = http.createServer(function(req, res) {
+
+	switch (req.method) {
+
+		case 'GET' :
+		switch (req.url) {
+			case '/':
+				show(res);
+
+		}
+	}
+
+});
+
 db.query(
 	"CREATE TABLE IF NOT EXISTS work ("
 	+ "id INT(10) NOT NULL AUTO_INCREMENT, "
@@ -26,4 +40,10 @@ db.query(
 		server.listen(3000, '127.0.0.1');
 	}
 );
+
+
+// TEMP
+function show(res) {
+	res.end('Server running...');
+}
 
