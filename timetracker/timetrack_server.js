@@ -1,4 +1,3 @@
-//timetrack_server.js
 
 var http  = require('http');
 var work  = require('./lib/timetrack');
@@ -16,31 +15,33 @@ var server = http.createServer(function(req, res) {
 
 	switch (req.method) {
 
-		case 'POST' :
+		case 'POST':
 			switch(req.url) {
-				case '/' :
+				case '/':
 					work.add(db, req, res);
 					break;
 
-				case '/archive' :
+				case '/archive':
 					work.archive(db, req, res);
 					break;
 
-				case '/remove' :
-					work.remove(db, req, res);
-					break;	
+				case '/delete':
+					work.delete(db, req, res);
+					break;
 			}
+			break;
 
-		case 'GET' :
+		case 'GET':
 			switch (req.url) {
-				case '/' :
+				case '/':
 					work.show(db, res);
 					break;
 
-				case '/archived' :	
+				case '/archived':
 					work.showArchived(db, res);
-					break;
 			}
+			break;
+
 	}
 
 });
@@ -59,10 +60,4 @@ db.query(
 		server.listen(3000, '127.0.0.1');
 	}
 );
-
-
-// TEMP
-function show(res) {
-	res.end('Server running...');
-}
 

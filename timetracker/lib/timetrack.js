@@ -1,6 +1,3 @@
-//-------------------------------------------------------------
-//timetrack.js
-
 var qs = require('querystring');
 
 
@@ -8,23 +5,23 @@ exports.sendHtml = function(res, html) {
 	res.setHeader('Content-Type', 'text/html');
 	res.setHeader('Content-Length', Buffer.byteLength(html));
 	res.end(html);
-};
+}
 
-exports.parseReceivedData = function(req, callback) {
+exports.parseReceivedData = function(req, cb) {
 	var body = '';
 	req.setEncoding('utf8');
 	req.on('data', function(chunk) { body += chunk });
 	req.on('end', function() {
 		var data = qs.parse(body);
-		callback(data);
+		cb(data);
 	});
 };
 
 exports.actionForm = function(id, path, label) {
 	var html = '<form method="POST" action="' + path + '">'
 			 + '<input type="hidden" name="id" value="' + id + '">'
-			 + '<input type="submit" value="' + label + '">'
-			 + '</form>'
+			 + '<input type="submit" value="' + label + '" />'
+			 + '</form>';
 	return html;
 };
 
@@ -32,7 +29,7 @@ exports.add = function(db, req, res) {
 	exports.parseReceivedData(req, function(work) {
 		db.query(
 			"INSERT INTO work (hours, date, description) " +
-			" VALUES (?, ?, ?)", 
+			" VALUES (?, ?, ?)",
 			[work.hours, work.date, work.description], 
 			function(err) {
 				if (err) throw err;
@@ -41,7 +38,7 @@ exports.add = function(db, req, res) {
 	});
 };
 
-exports.remove = function(db, req, res) {
+exports.delete = function(db, req, res) {
 	exports.parseReceivedData(req, function(work) {
 		db.query(
 			"DELETE FROM work WHERE id=?",
@@ -68,13 +65,13 @@ exports.archive = function(db, req, res) {
 };
 
 exports.show = function(db, res, showArchived) {
-	var sql = "SELECT * FROM work " +
+	var query = "SELECT * FROM work " +
 		"WHERE archived=? " +
 		"ORDER BY date DESC";
 
-	var archivedValue = (showArchived) ? 1 : 0;
+	var archiveValue = (showArchived) ? 1 : 0;
 	
-	db.query(sql, [archivedValue], 
+	db.query(query, [archiveValue], 
 		function(err, rows) {
 			if (err) throw err;
 
@@ -84,7 +81,8 @@ exports.show = function(db, res, showArchived) {
 			html += exports.workHitlistHtml(rows);
 			html += exports.workFormHtml();
 			exports.sendHtml(res, html);	
-		});	
+		}
+	);
 };
 
 exports.showArchived = function(db, res) {
@@ -94,7 +92,7 @@ exports.showArchived = function(db, res) {
 exports.workHitlistHtml = function(rows) {
 	var html = '<table>';
 
-	for (var i in rows) {
+	for(var i in rows) {
 		html += '<tr>';
 		html += '<td>' + rows[i].date + '</td>';
 		html += '<td>' + rows[i].hours + '</td>';
@@ -105,18 +103,19 @@ exports.workHitlistHtml = function(rows) {
 		}
 
 		html += '<td>' + exports.workDeleteForm(rows[i].id) + '</td>';
-		html += '</tr>'
+		html += '</tr>';
 	}
 	html   += '</table>';
+	return html;
 };
 
 exports.workFormHtml = function() {
-	var html = '<form method="POST" action ="/">' +
-	'<p>Date (YYY-MM-DD):<br/><input name="date" type="text"><p/>' +
+	var html = '<form method="POST" action="/">' +
+	'<p>Date (YYYY-MM-DD):<br/><input name="date" type="text"><p/>' +
 	'<p>Hours worked:<br/><input name="hours" type="text"><p/>' +
 	'<p>Description:<br/>' +
 	'<textarea name="description"></textarea></p>' +
-	'<input type="submit" value="Add" />'
+	'<input type="submit" value="Add" />' +
 	'</form>';
 	return html;
 };
@@ -124,11 +123,8 @@ exports.workFormHtml = function() {
 
 exports.workArchiveForm = function(id) {
 	return exports.actionForm(id, '/archive', 'Archive');
-};
+}
 
 exports.workDeleteForm = function(id) {
 	return exports.actionForm(id, '/delete', 'Delete');
-};
-
-
-
+}
