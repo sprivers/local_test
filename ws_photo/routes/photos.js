@@ -35,7 +35,7 @@ exports.submit = function(dir) {
         var name = req.body.photo.name || img.name;
         var path = join(dir, img.name);
 
-        fs.copy(img.path, path, function(err) {
+        fs.rename(img.path, path, function(err) {
             if (err) return next(err);
 
             Photo.create({
