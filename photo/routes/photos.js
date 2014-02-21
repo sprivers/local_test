@@ -1,0 +1,4 @@
+var photos = [];
+
+
+photos.push()
